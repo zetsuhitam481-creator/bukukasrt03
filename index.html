@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buku Kas RT 003 KGA</title>
+    <!-- ✅ LIBRARY EXPORT PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- ============================================== -->
+    <!-- 🔥 FIREBASE — SUDAH DIISI OTOMATIS! -->
+    <!-- ============================================== -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB4EIeC6dpAwST9uw30rI7Ee5ld61NaRv4",
+      authDomain: "webrt03.firebaseapp.com",
+      databaseURL: "https://webrt03-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "webrt03",
+      storageBucket: "webrt03.firebasestorage.app",
+      messagingSenderId: "1023106112112",
+      appId: "1:1023106112112:web:a1b5d1ef65f19f970bf2b5",
+      measurementId: "G-N9GE516TC2"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const refTransaksi = db.ref('transaksi_rt03');
+    </script>
+    <!-- ============================================== -->
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body {
+            background: url('bcm.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-attachment: fixed;
+            line-height: 1.6;
+            color: #222;
+            padding-bottom: 30px;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+
+        header {
+            background: linear-gradient(135deg, rgba(245, 235, 220, 0.98), rgba(230, 215, 195, 0.98));
+            color: #3E2723;
+            padding: 12px 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+        }
+        .header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .logo { font-size: 18px; font-weight: bold; }
+        .logo span { display: block; font-size: 12px; opacity: 0.8; margin-top: 3px; }
+        
+        nav ul { display: flex; list-style: none; gap: 5px; flex-wrap: wrap; }
+        nav a {
+            color: #3E2723; text-decoration: none; padding: 10px 14px; border-radius: 8px;
+            font-weight: 500; transition: all 0.3s ease;
+        }
+        nav a:hover, nav a.active { background: rgba(139, 69, 19, 0.15); }
+        .menu-toggle { display: block; font-size: 24px; cursor: pointer; padding: 5px 10px; }
+
+        section { padding: 20px 0; display: none; }
+        section.active { display: block; }
+        
+        h2 { font-size: 22px; color: #8B4513; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 3px solid rgba(139, 69, 19, 0.2); }
+        h3 { font-size: 17px; color: #8B4513; margin-bottom: 12px; }
+
+        .card { 
+            background: rgba(255, 253, 245, 0.95); padding: 18px; border-radius: 12px; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08); margin-bottom: 15px; 
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(245, 235, 220, 0.96), rgba(230, 215, 195, 0.96));
+            color: #3E2723; text-align: center; padding: 30px 20px; border-radius: 12px; margin-bottom: 20px;
+        }
+        .hero h1 { font-size: 22px; margin-bottom: 8px; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .info-card { text-align: center; padding: 15px; }
+        .info-card h3 { color: #8B4513; margin: 8px 0; font-size: 17px; }
+
+        .status-mode {
+            display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 12px;
+        }
+        .mode-warga { background: #fff3e0; color: #E65100; }
+        .mode-admin { background: #c8e6c9; color: #2E7D32; }
+        
+        .ringkasan {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 15px;
+        }
+        .kartu {
+            background: rgba(255, 253, 245, 0.92); padding: 15px; border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid;
+        }
+        .kartu h3 { font-size: 14px; color: #555; margin-bottom: 5px; }
+        .kartu .angka { font-size: 22px; font-weight: bold; }
+        .kartu.pemasukan { border-color: #2E7D32; color: #2E7D32; }
+        .kartu.pengeluaran { border-color: #D32F2F; color: #D32F2F; }
+        .kartu.saldo { border-color: #8B4513; color: #8B4513; }
+        .kartu.laporan { border-color: #1976D2; color: #1976D2; }
+
+        /* 📅 FILTER BULANAN */
+        .filter-bar {
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+            margin-bottom: 15px; padding: 12px; background: rgba(139, 69, 19, 0.05); border-radius: 10px;
+        }
+        .filter-bar label { font-weight: 600; color: #5D4037; }
+        .filter-bar input, .filter-bar select {
+            padding: 10px; border-radius: 6px; border: 1px solid #bbb; font-size: 15px;
+            background: white;
+        }
+        
+        .btn-ubah-pass {
+            background: #ff9800; color: white; border: none; 
+            padding: 12px 16px; border-radius: 8px; cursor: pointer;
+            font-size: 15px; font-weight: 600; margin: 15px 0;
+            width: 100%; text-align: left;
+        }
+        .btn-ubah-pass:hover { background: #fb8c00; }
+        
+        .ubah-pass-box {
+            background: #fff3e0; padding: 16px; border-radius: 10px; margin-bottom: 15px;
+            box-shadow: 0 3px 12px rgba(255, 152, 0, 0.25); border: 3px solid #ff9800;
+            display: none;
+        }
+        .ubah-pass-box.tampil { display: block !important; }
+        .ubah-pass-box h3 { font-size: 16px; color: #E65100; margin-bottom: 12px; font-weight: bold; }
+        .ubah-pass-box input { 
+            width: 100%; margin: 8px 0; padding: 14px 12px;
+            border-radius: 8px; border: 1px solid #ccc; font-size: 16px;
+        }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        input, select {
+            padding: 14px 12px; border: 1px solid #bbb; border-radius: 8px;
+            font-size: 16px; background: rgba(255,255,255,0.95);
+        }
+        input:focus, select:focus { 
+            outline: none; border-color: #8B4513;
+            box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.15);
+        }
+        .btn {
+            padding: 12px 20px; border: none; border-radius: 8px; font-size: 16px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+            min-height: 48px;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: #8B4513; color: white; }
+        .btn-danger { background: #f44336; color: white; }
+        .btn-reset { background: #e9ecef; color: #333; margin-left: 8px; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-logout { background: #f5f5f5; color: #d32f2f; margin-bottom: 12px; width: 100%; }
+        .btn-pdf { background: #1976D2; color: white; }
+        .btn-pdf:hover { background: #1565C0; }
+        .hidden { display: none !important; }
+        
+        table { 
+            width: 100%; border-collapse: collapse; margin-top: 8px; 
+            background: rgba(255,253,245,0.92); border-radius: 10px; overflow: hidden;
+        }
+        th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid #ddd; font-size: 14px; }
+        th { background: rgba(139, 69, 19, 0.08); font-weight: 600; }
+        .text-right { text-align: right; }
+        .kosong { text-align: center; padding: 25px; color: #666; }
+        .loading { text-align: center; padding: 30px; color: #1976D2; font-style: italic; }
+
+        /* 📄 AREA LAPORAN PDF */
+        #areaLaporan { background: white; padding: 30px; }
+        #areaLaporan h2 { text-align: center; border-bottom: 2px solid #8B4513; padding-bottom: 15px; }
+        #areaLaporan .kop { text-align: center; margin-bottom: 20px; }
+        #areaLaporan .kop h3 { margin: 0; font-size: 18px; }
+        #areaLaporan .kop p { margin: 5px 0; font-size: 13px; color: #666; }
+        #areaLaporan table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #areaLaporan th, #areaLaporan td { border: 1px solid #ddd; padding: 8px; }
+        #areaLaporan th { background: #f5f5f5; }
+        #areaLaporan .ttd { margin-top: 50px; display: flex; justify-content: space-between; }
+        #areaLaporan .ttd div { text-align: center; width: 150px; }
+
+        .admin-section { margin-top: 15px; }
+        .admin-toggle {
+            background: rgba(245, 235, 220, 0.9); border: none; padding: 14px 16px; border-radius: 8px;
+            cursor: pointer; font-size: 16px; color: #3E2723; font-weight: 500;
+            width: 100%; text-align: left; min-height: 52px;
+        }
+        .admin-login-box {
+            background: rgba(255, 253, 245, 0.98); padding: 20px; border-radius: 12px; margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12); border: 3px solid #8B4513;
+            display: none; position: relative; z-index: 10;
+        }
+        .admin-login-box.show { display: block; }
+        .admin-login-box h3 { font-size: 17px; color: #8B4513; margin-bottom: 15px; font-weight: bold; }
+        .admin-login-box input { 
+            width: 100%; margin: 10px 0; padding: 14px 12px;
+            font-size: 16px; border: 2px solid #ddd; border-radius: 8px; background: white;
+        }
+        .admin-login-box input:focus { border-color: #8B4513; }
+        .admin-login-box .btn-primary { width: 100%; margin-top: 8px; }
+
+        footer {
+            background: rgba(62, 39, 35, 0.9); color: white; text-align: center; padding: 18px 15px; margin-top: 20px;
+            font-size: 13px;
+        }
+        footer p { margin-bottom: 4px; opacity: 0.8; }
+
+        @media (max-width: 768px) {
+            nav ul { position: absolute; top: 100%; left: 0; right: 0; background: rgba(245, 235, 220, 0.98); flex-direction: column; padding: 12px; display: none; z-index: 99; }
+            nav ul.show { display: flex; }
+            nav a { display: block; padding: 12px; }
+            .hero h1 { font-size: 20px; }
+            h2 { font-size: 20px; }
+            section { padding-bottom: 40px; }
+            .admin-login-box { position: static; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container header-content">
+        <div class="logo">
+            🏠 Buku Kas RT 003 KGA
+            <span>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana</span>
+        </div>
+        <nav>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul id="menuNav">
+                <li><a href="#" class="active" onclick="bukaHalaman('beranda'); return false;">Beranda</a></li>
+                <li><a href="#" onclick="bukaHalaman('keuangan'); return false;">Buku Kas</a></li>
+                <li><a href="#" onclick="bukaHalaman('laporan'); return false;">📄 Laporan</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+
+    <section id="beranda" class="active">
+        <div class="hero">
+            <h1>📒 Buku Kas RT 003 KGA</h1>
+            <p>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang</p>
+            <p style="margin-top:10px; font-size:14px; color:#555;">✅ Data tersimpan di internet — semua warga bisa lihat secara real-time!</p>
+        </div>
+        <div class="info-grid">
+            <div class="card info-card"><h3>📍 Alamat</h3><p>Kramatwatu Griya Asri<br>Desa Lebakwana, RT 003 / RW 005</p></div>
+            <div class="card info-card"><h3>👤 Pengurus</h3><p>Ketua RT: Arif<br>Sekretaris: Kusumo<br>Bendahara: Lulu</p></div>
+            <div class="card info-card"><h3>📞 Kontak</h3><p>Telepon/WA: 0813-1552-5500</p></div>
+        </div>
+        <div class="card"><h2>📢 Pengumuman</h2><p>Website buku kas RT 003 KGA ini dibuat untuk transparansi keuangan warga. Warga dapat melihat pemasukan dan pengeluaran kapan saja. Data otomatis tersimpan di internet — cukup buka link, semua warga melihat data yang sama! Laporan bulanan dapat diunduh dalam bentuk PDF.</p></div>
+    </section>
+
+    <section id="keuangan">
+        <h2>💰 Buku Kas RT 003 KGA</h2>
+        <div id="statusKeuangan" class="status-mode mode-warga">👤 Mode Warga — Hanya Melihat</div>
+        <button class="btn btn-logout hidden" id="btnLogoutKeuangan" onclick="logout()">🚪 Keluar Admin</button>
+        <p style="margin-bottom: 15px; color: #555; font-size:14px;">✅ Data tersimpan di internet — otomatis update untuk semua warga!</p>
+        
+        <!-- 📅 FILTER BULANAN -->
+        <div class="filter-bar">
+            <label>📅 Lihat Bulan:</label>
+            <select id="filterBulan" onchange="tampilkanKeuangan()">
+                <option value="semua">-- Semua Data --</option>
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+            <label>Tahun:</label>
+            <input type="number" id="filterTahun" value="2026" min="2025" max="2035" onchange="tampilkanKeuangan()">
+            <button class="btn btn-pdf" onclick="exportPDF()">📄 Export PDF</button>
+        </div>
+        
+        <div class="ringkasan">
+            <div class="kartu pemasukan"><h3>Total Pemasukan</h3><div class="angka" id="totalMasuk">Rp 0</div></div>
+            <div class="kartu pengeluaran"><h3>Total Pengeluaran</h3><div class="angka" id="totalKeluar">Rp 0</div></div>
+            <div class="kartu saldo"><h3>Saldo Saat Ini</h3><div class="angka" id="saldoAkhir">Rp 0</div></div>
+        </div>
+
+        <button class="btn-ubah-pass hidden" id="btnUbahPass" onclick="toggleUbahPass()">
+            🔧 Ubah Password Admin ▼
+        </button>
+
+        <div class="ubah-pass-box" id="ubahPassBox">
+            <h3>🔧 UBAH PASSWORD & USERNAME ADMIN</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:10px;">⚠️ Isi semua kolom. Simpan lalu login ulang!</p>
+            <input type="text" id="baruUser" placeholder="Nama Pengguna Baru (min. 4 karakter)">
+            <input type="password" id="baruPassLama" placeholder="Kata Sandi Lama — WAJIB DIISI">
+            <input type="password" id="baruPass1" placeholder="Kata Sandi Baru (min. 4 karakter)">
+            <input type="password" id="baruPass2" placeholder="Ulangi Kata Sandi Baru — sama persis">
+            <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="ubahPassword()">✅ SIMPAN PERUBAHAN</button>
+                <button class="btn btn-secondary" onclick="resetFormPass()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="card hidden" id="formTransaksi">
+            <h3>📝 Input Transaksi</h3>
+            <div class="form-grid">
+                <div class="form-group"><label>Tanggal</label><input type="date" id="tanggal" required></div>
+                <div class="form-group"><label>Jenis</label><select id="jenis"><option value="masuk">💰 Pemasukan</option><option value="keluar">📤 Pengeluaran</option></select></div>
+                <div class="form-group"><label>Jumlah (Rp)</label><input type="number" id="jumlah" placeholder="0" required></div>
+                <div class="form-group"><label>Keterangan</label><input type="text" id="keterangan" placeholder="Contoh: Iuran warga, beli sapu" required></div>
+            </div>
+            <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:10px;">
+                <button class="btn btn-primary" onclick="simpanTransaksi()">💾 SIMPAN</button>
+                <button class="btn btn-reset" onclick="resetForm()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Daftar Transaksi <span style="font-size:13px; color:#666; font-weight:normal;">(Dari internet — otomatis terupdate)</span></h3>
+            <div id="tabelKosong" class="loading">⏳ Memuat data dari server...</div>
+            <table id="tabelTransaksi" style="display:none;">
+                <thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th class="text-right">Jumlah (Rp)</th><th class="text-right" id="kolomAksi">Aksi</th></tr></thead>
+                <tbody id="isiTabel"></tbody>
+            </table>
+        </div>
+
+        <div class="admin-section">
+            <button class="admin-toggle" id="adminToggle" onclick="toggleAdminLogin()">⚙️ Login Admin — Klik untuk mengisi data</button>
+            <div class="admin-login-box" id="adminLoginBox">
+                <h3>🔐 Masuk Sebagai Admin</h3>
+                <input type="text" id="adminUser" placeholder="Nama Pengguna Admin" autocomplete="username">
+                <input type="password" id="adminPass" placeholder="Kata Sandi Admin" autocomplete="current-password">
+                <button class="btn btn-primary" onclick="loginAdmin()">🔑 Login</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📄 HALAMAN LAPORAN -->
+    <section id="laporan">
+        <h2>📄 Laporan Bulanan & Export PDF</h2>
+        <p style="margin-bottom: 15px; color: #555;">Pilih bulan dan tahun untuk melihat ringkasan laporan, lalu simpan sebagai PDF.</p>
+        
+        <div class="filter-bar">
+            <label>📅 Bulan:</label>
+            <select id="lapBulan" onchange="tampilkanLaporan()">
+                <option value="01">Januari</option>
+                <option value="02">Februari</option>
+                <option value="03">Maret</option>
+                <option value="04">April</option>
+                <option value="05">Mei</option>
+                <option value="06">Juni</option>
+                <option value="07">Juli</option>
+                <option value="08">Agustus</option>
+                <option value="09">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+            </select>
+            <label>Tahun:</label>
+            <input type="number" id="lapTahun" value="2026" min="2025" max="2035" onchange="tampilkanLaporan()">
+        </div>
+
+        <div class="ringkasan">
+            <div class="kartu pemasukan"><h3>Pemasukan Bulan Ini</h3><div class="angka" id="lapMasuk">Rp 0</div></div>
+            <div class="kartu pengeluaran"><h3>Pengeluaran Bulan Ini</h3><div class="angka" id="lapKeluar">Rp 0</div></div>
+            <div class="kartu saldo"><h3>Saldo Akhir Bulan</h3><div class="angka" id="lapSaldo">Rp 0</div></div>
+            <div class="kartu laporan"><h3>Total Transaksi</h3><div class="angka" id="lapJumlah">0</div></div>
+        </div>
+
+        <div class="card">
+            <h3>📋 Detail Transaksi Bulan Ini</h3>
+            <div id="lapKosong" class="loading">⏳ Memuat data...</div>
+            <table id="tabelLaporan" style="display:none;">
+                <thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th class="text-right">Jumlah (Rp)</th></tr></thead>
+                <tbody id="isiLaporan"></tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-pdf" style="font-size: 18px; padding: 15px 30px;" onclick="exportLaporanPDF()">📄 SIMPAN LAPORAN SEBAGAI PDF</button>
+        </div>
+
+        <!-- AREA LAPORAN UNTUK PDF -->
+        <div id="areaLaporan" class="hidden">
+            <div class="kop">
+                <h3>BUKU KAS RT 003 KGA</h3>
+                <p>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang</p>
+                <p>Periode: <span id="pdfPeriode">--</span></p>
+            </div>
+            <table>
+                <thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th style="text-align:right">Pemasukan (Rp)</th><th style="text-align:right">Pengeluaran (Rp)</th></tr></thead>
+                <tbody id="pdfIsi"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" style="text-align:right; font-weight:bold;">TOTAL</td>
+                        <td style="text-align:right; font-weight:bold;" id="pdfTotalMasuk">0</td>
+                        <td style="text-align:right; font-weight:bold;" id="pdfTotalKeluar">0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" style="text-align:right; font-weight:bold;">SALDO AKHIR</td>
+                        <td style="text-align:right; font-weight:bold; background:#f5f5f5;" id="pdfSaldo">0</td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="ttd">
+                <div>
+                    <p>Bendahara RT</p>
+                    <br><br><br>
+                    <p>(.........................)</p>
+                </div>
+                <div>
+                    <p>Ketua RT</p>
+                    <br><br><br>
+                    <p>(.........................)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    <p>🏠 Buku Kas RT 003 KGA — RW 005, Kramatwatu Griya Asri, Desa Lebakwana</p>
+    <p>© 2026 — Untuk Transparansi Keuangan Warga | Data tersimpan di internet</p>
+</footer>
+
+<script>
+// === KONFIGURASI ADMIN ===
+let ADMIN_USER = localStorage.getItem('adminUser') || 'bendahara';
+let ADMIN_PASS = localStorage.getItem('adminPass') || 'rt003kga';
+
+let isAdmin = false;
+let daftarTransaksi = [];
+
+// === 🔥 BACA DATA OTOMATIS DARI FIREBASE ===
+refTransaksi.on('value', (snapshot) => {
+    const data = snapshot.val();
+    daftarTransaksi = [];
+    if (data) {
+        Object.entries(data).forEach(([id, trx]) => {
+            daftarTransaksi.push({ id, ...trx });
+        });
+        // Urutkan dari terbaru
+        daftarTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+    }
+    tampilkanKeuangan();
+    tampilkanLaporan();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('tanggal').valueAsDate = new Date();
+});
+
+function bukaHalaman(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('menuNav').classList.remove('show');
+    window.scrollTo(0, 0);
+    if (id === 'keuangan') tampilkanKeuangan();
+    if (id === 'laporan') tampilkanLaporan();
+}
+
+function toggleMenu() { document.getElementById('menuNav').classList.toggle('show'); }
+function toggleAdminLogin() { 
+    document.getElementById('adminLoginBox').classList.toggle('show'); 
+    if (document.getElementById('adminLoginBox').classList.contains('show')) {
+        setTimeout(() => {
+            document.getElementById('adminLoginBox').scrollIntoView({behavior: 'smooth', block: 'center'});
+        }, 100);
+    }
+}
+
+function toggleUbahPass() {
+    const kotak = document.getElementById('ubahPassBox');
+    const tombol = document.getElementById('btnUbahPass');
+    kotak.classList.toggle('tampil');
+    if (kotak.classList.contains('tampil')) {
+        tombol.textContent = '🔧 Tutup Ubah Password ▲';
+        kotak.scrollIntoView({behavior: 'smooth', block: 'center'});
+    } else {
+        tombol.textContent = '🔧 Ubah Password Admin ▼';
+    }
+}
+
+function loginAdmin() {
+    const user = document.getElementById('adminUser').value.trim();
+    const pass = document.getElementById('adminPass').value.trim();
+    
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        isAdmin = true;
+        document.getElementById('statusKeuangan').textContent = '🔧 Mode Admin — Bisa Input & Hapus';
+        document.getElementById('statusKeuangan').classList.remove('mode-warga');
+        document.getElementById('statusKeuangan').classList.add('mode-admin');
+        document.getElementById('formTransaksi').classList.remove('hidden');
+        document.getElementById('btnLogoutKeuangan').classList.remove('hidden');
+        document.getElementById('adminToggle').classList.add('hidden');
+        document.getElementById('adminLoginBox').classList.remove('show');
+        document.getElementById('btnUbahPass').classList.remove('hidden');
+        tampilkanTabel();
+        alert('✅ Login BERHASIL! Data akan tersimpan di internet.');
+    } else {
+        alert('❌ Nama pengguna atau sandi SALAH!');
+    }
+}
+
+function ubahPassword() {
+    const userBaru = document.getElementById('baruUser').value.trim();
+    const passLama = document.getElementById('baruPassLama').value.trim();
+    const passBaru1 = document.getElementById('baruPass1').value.trim();
+    const passBaru2 = document.getElementById('baruPass2').value.trim();
+
+    if (passLama !== ADMIN_PASS) {
+        alert('❌ Kata sandi lama SALAH!');
+        return;
+    }
+    if (!userBaru || userBaru.length < 4) {
+        alert('❌ Nama pengguna minimal 4 karakter!');
+        return;
+    }
+    if (!passBaru1 || passBaru1.length < 4) {
+        alert('❌ Kata sandi baru minimal 4 karakter!');
+        return;
+    }
+    if (passBaru1 !== passBaru2) {
+        alert('❌ Kata sandi baru TIDAK SAMA!');
+        return;
+    }
+
+    ADMIN_USER = userBaru;
+    ADMIN_PASS = passBaru1;
+    localStorage.setItem('adminUser', ADMIN_USER);
+    localStorage.setItem('adminPass', ADMIN_PASS);
+
+    alert('✅ BERHASIL DIUBAH!\n\nPengguna: ' + ADMIN_USER + '\nSandi: ' + ADMIN_PASS + '\n\nSilakan LOGIN ULANG!');
+    logout();
+}
+
+function resetFormPass() {
+    document.getElementById('baruUser').value = '';
+    document.getElementById('baruPassLama').value = '';
+    document.getElementById('baruPass1').value = '';
+    document.getElementById('baruPass2').value = '';
+}
+
+function logout() {
+    if (confirm('Kembali ke tampilan Warga?')) {
+        isAdmin = false;
+        document.getElementById('statusKeuangan').textContent = '👤 Mode Warga — Hanya Melihat';
+        document.getElementById('statusKeuangan').classList.remove('mode-admin');
+        document.getElementById('statusKeuangan').classList.add('mode-warga');
+        document.getElementById('formTransaksi').classList.add('hidden');
+        document.getElementById('btnLogoutKeuangan').classList.add('hidden');
+        document.getElementById('ubahPassBox').classList.remove('tampil');
+        document.getElementById('btnUbahPass').classList.add('hidden');
+        document.getElementById('adminToggle').classList.remove('hidden');
+        document.getElementById('adminUser').value = '';
+        document.getElementById('adminPass').value = '';
+        resetFormPass();
+        tampilkanTabel();
+    }
+}
+
+// === 📅 FILTER DATA BERDASARKAN BULAN ===
+function dapatkanDataTerfilter() {
+    const bulan = document.getElementById('filterBulan').value;
+    const tahun = document.getElementById('filterTahun').value;
+    
+    if (bulan === 'semua') return daftarTransaksi;
+    
+    return daftarTransaksi.filter(t => {
+        const tgl = t.tanggal.split('-');
+        return tgl[0] === tahun && tgl[1] === bulan;
+    });
+}
+
+function tampilkanKeuangan() { 
+    hitungSaldo(); 
+    tampilkanTabel(); 
+}
+
+function hitungSaldo() {
+    const data = dapatkanDataTerfilter();
+    let masuk = 0, keluar = 0;
+    data.forEach(t => { if (t.jenis === 'masuk') masuk += t.jumlah; else keluar += t.jumlah; });
+    document.getElementById('totalMasuk').textContent = formatRupiah(masuk);
+    document.getElementById('totalKeluar').textContent = formatRupiah(keluar);
+    document.getElementById('saldoAkhir').textContent = formatRupiah(masuk - keluar);
+}
+
+// === 🔥 SIMPAN KE FIREBASE (BUKAN LOCALSTORAGE LAGI!) ===
+function simpanTransaksi() {
+    if (!isAdmin) { alert('❌ Hanya Admin!'); return; }
+    const tanggal = document.getElementById('tanggal').value;
+    const jenis = document.getElementById('jenis').value;
+    const jumlah = parseInt(document.getElementById('jumlah').value);
+    const keterangan = document.getElementById('keterangan').value.trim();
+    
+    if (!tanggal || !jumlah || !keterangan) { alert('⚠️ Lengkapi data!'); return; }
+    
+    const transaksiBaru = {
+        tanggal, jenis, jumlah, keterangan,
+        waktu: new Date().toISOString()
+    };
+    
+    refTransaksi.push(transaksiBaru)
+        .then(() => {
+            alert('✅ Tersimpan di internet! Semua warga langsung bisa melihat!');
+            resetForm();
+        })
+        .catch(err => {
+            alert('❌ Error: ' + err.message);
+        });
+}
+
+function resetForm() {
+    document.getElementById('tanggal').valueAsDate = new Date();
+    document.getElementById('jenis').value = 'masuk';
+    document.getElementById('jumlah').value = '';
+    document.getElementById('keterangan').value = '';
+}
+
+function tampilkanTabel() {
+    const data = dapatkanDataTerfilter();
+    const tabel = document.getElementById('tabelTransaksi');
+    const kosong = document.getElementById('tabelKosong');
+    const isi = document.getElementById('isiTabel');
+    const kolomAksi = document.getElementById('kolomAksi');
+    
+    if (data.length === 0) { 
+        tabel.style.display = 'none'; 
+        kosong.style.display = 'block'; 
+        kosong.textContent = 'Belum ada transaksi.';
+        return; 
+    }
+    
+    tabel.style.display = 'table'; 
+    kosong.style.display = 'none'; 
+    isi.innerHTML = '';
+    kolomAksi.style.display = isAdmin ? 'table-cell' : 'none';
+    
+    data.forEach((t, i) => {
+        const baris = document.createElement('tr');
+        baris.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${t.tanggal}</td>
+            <td>${t.jenis === 'masuk' ? '💰 Masuk' : '📤 Keluar'}</td>
+            <td>${t.keterangan}</td>
+            <td class="text-right">${formatRupiah(t.jumlah)}</td>
+            <td class="text-right" style="display:${isAdmin ? 'table-cell' : 'none'};">
+                <button class="btn btn-danger" style="padding:6px 10px; font-size:14px;" onclick="hapusTransaksi('${t.id}')">🗑️ Hapus</button>
+            </td>
+        `;
+        isi.appendChild(baris);
+    });
+}
+
+// === 🔥 HAPUS DARI FIREBASE ===
+function hapusTransaksi(id) {
+    if (!confirm('Yakin hapus transaksi ini? Akan terhapus untuk semua orang!')) return;
+    refTransaksi.child(id).remove()
+        .then(() => alert('✅ Terhapus!'))
+        .catch(err => alert('❌ Error: ' + err.message));
+}
+
+// === 📄 HALAMAN LAPORAN ===
+function tampilkanLaporan() {
+    const bulan = document.getElementById('lapBulan').value;
+    const tahun = document.getElementById('lapTahun').value;
+    const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][parseInt(bulan)-1];
+    
+    const dataBulan = daftarTransaksi.filter(t => {
+        const tgl = t.tanggal.split('-');
+        return tgl[0] === tahun && tgl[1] === bulan;
+    });
+    
+    let masuk = 0, keluar = 0;
+    dataBulan.forEach(t => {
+        if (t.jenis === 'masuk') masuk += t.jumlah;
+        else keluar += t.jumlah;
+    });
+    
+    document.getElementById('lapMasuk').textContent = formatRupiah(masuk);
+    document.getElementById('lapKeluar').textContent = formatRupiah(keluar);
+    document.getElementById('lapSaldo').textContent = formatRupiah(masuk - keluar);
+    document.getElementById('lapJumlah').textContent = dataBulan.length;
+    
+    const tabel = document.getElementById('tabelLaporan');
+    const kosong = document.getElementById('lapKosong');
+    const isi = document.getElementById('isiLaporan');
+    
+    if (dataBulan.length === 0) {
+        tabel.style.display = 'none';
+        kosong.style.display = 'block';
+        kosong.textContent = 'Belum ada transaksi di bulan ini.';
+        return;
+    }
+    
+    tabel.style.display = 'table';
+    kosong.style.display = 'none';
+    isi.innerHTML = '';
+    
+    dataBulan.sort((a,b) => a.tanggal.localeCompare(b.tanggal)).forEach((t, i) => {
+        const baris = document.createElement('tr');
+        baris.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${t.tanggal}</td>
+            <td>${t.jenis === 'masuk' ? '💰 Masuk' : '📤 Keluar'}</td>
+            <td>${t.keterangan}</td>
+            <td class="text-right">${formatRupiah(t.jumlah)}</td>
+        `;
+        isi.appendChild(baris);
+    });
+}
+
+// === 📄 EXPORT PDF — LAPORAN BULANAN ===
+function exportLaporanPDF() {
+    const bulan = document.getElementById('lapBulan').value;
+    const tahun = document.getElementById('lapTahun').value;
+    const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][parseInt(bulan)-1];
+    
+    const dataBulan = daftarTransaksi.filter(t => {
+        const tgl = t.tanggal.split('-');
+        return tgl[0] === tahun && tgl[1] === bulan;
+    });
+    
+    let masuk = 0, keluar = 0;
+    dataBulan.forEach(t => {
+        if (t.jenis === 'masuk') masuk += t.jumlah;
+        else keluar += t.jumlah;
+    });
+    
+    // Isi data ke area PDF
+    document.getElementById('pdfPeriode').textContent = namaBulan + ' ' + tahun;
+    document.getElementById('pdfTotalMasuk').textContent = formatRupiah(masuk);
+    document.getElementById('pdfTotalKeluar').textContent = formatRupiah(keluar);
+    document.getElementById('pdfSaldo').textContent = formatRupiah(masuk - keluar);
+    
+    const pdfIsi = document.getElementById('pdfIsi');
+    pdfIsi.innerHTML = '';
+    
+    dataBulan.sort((a,b) => a.tanggal.localeCompare(b.tanggal)).forEach((t, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td>${t.tanggal}</td>
+            <td>${t.jenis === 'masuk' ? 'Pemasukan' : 'Pengeluaran'}</td>
+            <td>${t.keterangan}</td>
+            <td style="text-align:right">${t.jenis === 'masuk' ? formatRupiah(t.jumlah) : '-'}</td>
+            <td style="text-align:right">${t.jenis === 'keluar' ? formatRupiah(t.jumlah) : '-'}</td>
+        `;
+        pdfIsi.appendChild(tr);
+    });
+    
+    // Tampilkan area PDF, lalu export
+    const areaLaporan = document.getElementById('areaLaporan');
+    areaLaporan.classList.remove('hidden');
+    
+    const opt = {
+        margin: 10,
+        filename: 'Laporan_RT003KGA_' + namaBulan + '_' + tahun + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(areaLaporan).save().then(() => {
+        areaLaporan.classList.add('hidden');
+        alert('✅ Laporan PDF berhasil diunduh!');
+    });
+}
+
+function exportPDF() {
+    alert('💡 Silakan buka menu **📄 Laporan** untuk export PDF per bulan!');
+    bukaHalaman('laporan');
+}
+
+function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+</script>
+
+</body>
+</html>
