@@ -160,7 +160,15 @@
         .btn-logout { background: #f5f5f5; color: #d32f2f; margin-bottom: 12px; width: 100%; }
         .btn-pdf { background: #1976D2; color: white; }
         .btn-pdf:hover { background: #1565C0; }
-        .hidden { display: none !important; }
+        
+        /* ✅ DIPERBAIKI: .hidden — TIDAK PAKAI display:none SUPAYA PDF BISA BACA! */
+        .hidden { 
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            opacity: 0;
+            pointer-events: none;
+        }
         
         table { 
             width: 100%; border-collapse: collapse; margin-top: 8px; 
@@ -722,7 +730,7 @@ function tampilkanLaporan() {
     });
 }
 
-// === 📄 EXPORT PDF — LAPORAN BULANAN ===
+// === 📄 EXPORT PDF — LAPORAN BULANAN (DIPERBAIKI!) ===
 function exportLaporanPDF() {
     const bulan = document.getElementById('lapBulan').value;
     const tahun = document.getElementById('lapTahun').value;
@@ -732,6 +740,11 @@ function exportLaporanPDF() {
         const tgl = t.tanggal.split('-');
         return tgl[0] === tahun && tgl[1] === bulan;
     });
+    
+    if (dataBulan.length === 0) {
+        alert('⚠️ Tidak ada transaksi di bulan ini! Pilih bulan yang ada datanya dulu.');
+        return;
+    }
     
     let masuk = 0, keluar = 0;
     dataBulan.forEach(t => {
@@ -769,13 +782,17 @@ function exportLaporanPDF() {
         margin: 10,
         filename: 'Laporan_RT003KGA_' + namaBulan + '_' + tahun + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            background: '#ffffff'
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
     html2pdf().set(opt).from(areaLaporan).save().then(() => {
         areaLaporan.classList.add('hidden');
-        alert('✅ Laporan PDF berhasil diunduh!');
+        alert('✅ Laporan PDF berhasil diunduh! Isi sudah lengkap!');
     });
 }
 
