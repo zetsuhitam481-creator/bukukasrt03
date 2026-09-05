@@ -2,12 +2,35 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Buku Kas RT 003 KGA</title>
 
+<!-- ✅ LIBRARY EXPORT PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<!-- ============================================== -->
+<!-- 🔥 FIREBASE CONFIG MILIK BAPAK — SUDAH TERMASUK! -->
+<!-- ============================================== -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB4EIeC6dpAwST9uw30rI7Ee5ld61NaRv4",
+  authDomain: "webrt03.firebaseapp.com",
+  projectId: "webrt03",
+  storageBucket: "webrt03.firebasestorage.app",
+  messagingSenderId: "1023106112112",
+  appId: "1:1023106112112:web:a1b5d1ef65f19f970bf2b5",
+  measurementId: "G-N9GE516TC2"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const COLLECTION = "transaksi";
+</script>
 
 <style>
 *{
@@ -371,15 +394,6 @@ th{
     width:100%;
 }
 
-.info-note{
-    padding:12px;
-    background:#fff8e1;
-    border-left:4px solid #f9a825;
-    border-radius:6px;
-    margin-bottom:15px;
-    font-size:14px;
-}
-
 .modal{
     display:none;
     position:fixed;
@@ -431,15 +445,12 @@ footer{
 }
 
 @media(max-width:768px){
-
     .header-content{
         position:relative;
     }
-
     .menu-toggle{
         display:block;
     }
-
     nav ul{
         position:absolute;
         top:100%;
@@ -451,100 +462,52 @@ footer{
         display:none;
         box-shadow:0 5px 10px rgba(0,0,0,.1);
     }
-
     nav ul.show{
         display:flex;
     }
-
     nav a{
         padding:12px;
     }
-
     .filter-bar{
         flex-direction:column;
         align-items:stretch;
     }
-
     .filter-bar label{
         margin-top:5px;
     }
-
     .filter-bar input,
     .filter-bar select{
         width:100%;
     }
-
     table{
         min-width:650px;
     }
-
     .table-wrapper{
         overflow-x:auto;
     }
-
     .btn{
         width:auto;
     }
-
     .form-grid{
         grid-template-columns:1fr;
     }
-
     .hero h1{
         font-size:20px;
     }
-
     .logo{
         max-width:80%;
     }
 }
 
 @media print{
-
-    body{
-        background:white;
-    }
-
-    header,
-    footer,
-    .filter-bar,
-    .admin-section,
-    .btn,
-    #statusKeuangan,
-    #btnLogoutKeuangan,
-    .search-box{
-        display:none !important;
-    }
-
-    section{
-        display:block !important;
-    }
-
-    #beranda,
-    #keuangan{
-        display:none !important;
-    }
-
-    .card,
-    .kartu{
-        box-shadow:none;
-        border:1px solid #ddd;
-    }
-
-    .print-only{
-        display:block;
-        text-align:center;
-        margin-bottom:20px;
-    }
-
-    table{
-        min-width:0;
-    }
-
-    th,
-    td{
-        font-size:12px;
-    }
+    body{background:white;}
+    header,footer,.filter-bar,.admin-section,.btn,#statusKeuangan,#btnLogoutKeuangan,.search-box{display:none !important;}
+    section{display:block !important;}
+    #beranda,#keuangan{display:none !important;}
+    .card,.kartu{box-shadow:none;border:1px solid #ddd;}
+    .print-only{display:block;text-align:center;margin-bottom:20px;}
+    table{min-width:0;}
+    th,td{font-size:12px;}
 }
 </style>
 </head>
@@ -553,1863 +516,615 @@ footer{
 
 <header>
 <div class="container header-content">
-
 <div class="logo">
 🏠 Buku Kas RT 003 KGA
 <span>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana</span>
 </div>
-
 <nav>
 <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-
 <ul id="menuNav">
-<li>
-<a href="#" class="active"
-onclick="bukaHalaman('beranda',this);return false;">
-Beranda
-</a>
-</li>
-
-<li>
-<a href="#"
-onclick="bukaHalaman('keuangan',this);return false;">
-Buku Kas
-</a>
-</li>
-
-<li>
-<a href="#"
-onclick="bukaHalaman('laporan',this);return false;">
-📊 Laporan
-</a>
-</li>
+<li><a href="#" class="active" onclick="bukaHalaman('beranda',this);return false;">Beranda</a></li>
+<li><a href="#" onclick="bukaHalaman('keuangan',this);return false;">Buku Kas</a></li>
+<li><a href="#" onclick="bukaHalaman('laporan',this);return false;">📊 Laporan</a></li>
 </ul>
-
 </nav>
 </div>
 </header>
 
-
 <div class="container">
 
-<!-- ================= BERANDA ================= -->
-
+<!-- BERANDA -->
 <section id="beranda" class="active">
-
 <div class="hero">
-
 <h1>📒 Buku Kas RT 003 KGA</h1>
-
-<p>
-RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang
-</p>
-
-<p style="margin-top:10px;font-size:14px;color:#555">
-✅ Data tersimpan di internet dan diperbarui secara real-time
-</p>
-
+<p>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang</p>
+<p style="margin-top:10px;font-size:14px;color:#555">✅ Data tersimpan aman di Firebase</p>
 </div>
-
 <div class="info-grid">
-
 <div class="card info-card">
-
 <h3>📍 Alamat</h3>
-
-<p>
-Kramatwatu Griya Asri<br>
-Desa Lebakwana, RT 003 / RW 005
-</p>
-
+<p>Kramatwatu Griya Asri<br>Desa Lebakwana, RT 003 / RW 005</p>
 </div>
-
 <div class="card info-card">
-
 <h3>👤 Pengurus</h3>
-
-<p>
-Ketua RT: Arif<br>
-Sekretaris: Kusumo<br>
-Bendahara: Lulu
-</p>
-
+<p>Ketua RT: Arif<br>Sekretaris: Kusumo<br>Bendahara: Lulu</p>
 </div>
-
 <div class="card info-card">
-
 <h3>📞 Kontak</h3>
-
-<p>
-Telepon/WA: 0813-1552-5500
-</p>
-
+<p>Telepon/WA: 0813-1552-5500</p>
 </div>
-
 </div>
-
 <div class="card">
-
 <h2>📢 Pengumuman</h2>
-
-<p>
-Website buku kas RT 003 KGA dibuat untuk transparansi keuangan warga.
-Warga dapat melihat pemasukan dan pengeluaran kapan saja.
-</p>
-
+<p>Website buku kas RT 003 KGA dibuat untuk transparansi keuangan warga. Warga dapat melihat pemasukan dan pengeluaran kapan saja.</p>
 </div>
-
 </section>
 
-
-<!-- ================= KEUANGAN ================= -->
-
+<!-- KEUANGAN -->
 <section id="keuangan">
-
 <h2>💰 Buku Kas RT 003 KGA</h2>
-
-<div id="statusKeuangan"
-class="status-mode mode-warga">
-👤 Mode Warga — Hanya Melihat
-</div>
-
-<button
-class="btn btn-secondary hidden"
-id="btnLogoutKeuangan"
-onclick="logout()">
-🚪 Keluar Admin
-</button>
-
+<div id="statusKeuangan" class="status-mode mode-warga">👤 Mode Warga — Hanya Melihat</div>
+<button class="btn btn-secondary hidden" id="btnLogoutKeuangan" onclick="logout()">🚪 Keluar Admin</button>
 
 <div class="filter-bar">
-
 <label>📅 Bulan:</label>
-
-<select id="filterBulan"
-onchange="tampilkanKeuangan()">
-
+<select id="filterBulan" onchange="tampilkanKeuangan()">
 <option value="semua">-- Semua Data --</option>
-
-<option value="01">Januari</option>
-<option value="02">Februari</option>
-<option value="03">Maret</option>
-<option value="04">April</option>
-<option value="05">Mei</option>
-<option value="06">Juni</option>
-<option value="07">Juli</option>
-<option value="08">Agustus</option>
-<option value="09">September</option>
-<option value="10">Oktober</option>
-<option value="11">November</option>
-<option value="12">Desember</option>
-
+<option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+<option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+<option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+<option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
 </select>
-
 <label>Tahun:</label>
-
-<input
-type="number"
-id="filterTahun"
-value="2026"
-min="2025"
-max="2035"
-onchange="tampilkanKeuangan()">
-
+<input type="number" id="filterTahun" value="2026" min="2025" max="2035" onchange="tampilkanKeuangan()">
 </div>
-
 
 <div class="ringkasan">
-
-<div class="kartu pemasukan">
-
-<h3>Total Pemasukan</h3>
-
-<div class="angka" id="totalMasuk">
-Rp 0
+<div class="kartu pemasukan"><h3>Total Pemasukan</h3><div class="angka" id="totalMasuk">Rp 0</div></div>
+<div class="kartu pengeluaran"><h3>Total Pengeluaran</h3><div class="angka" id="totalKeluar">Rp 0</div></div>
+<div class="kartu saldo"><h3>Saldo</h3><div class="angka" id="saldoAkhir">Rp 0</div></div>
 </div>
-
-</div>
-
-
-<div class="kartu pengeluaran">
-
-<h3>Total Pengeluaran</h3>
-
-<div class="angka" id="totalKeluar">
-Rp 0
-</div>
-
-</div>
-
-
-<div class="kartu saldo">
-
-<h3>Saldo</h3>
-
-<div class="angka" id="saldoAkhir">
-Rp 0
-</div>
-
-</div>
-
-</div>
-
 
 <!-- FORM ADMIN -->
-
 <div class="card hidden" id="formTransaksi">
-
 <h3>📝 Input Transaksi</h3>
-
 <div class="form-grid">
-
-<div class="form-group">
-
-<label>Tanggal</label>
-
-<input type="date" id="tanggal">
-
+<div class="form-group"><label>Tanggal</label><input type="date" id="tanggal"></div>
+<div class="form-group"><label>Jenis</label>
+<select id="jenis"><option value="masuk">💰 Pemasukan</option><option value="keluar">📤 Pengeluaran</option></select>
 </div>
-
-
-<div class="form-group">
-
-<label>Jenis</label>
-
-<select id="jenis">
-
-<option value="masuk">
-💰 Pemasukan
-</option>
-
-<option value="keluar">
-📤 Pengeluaran
-</option>
-
-</select>
-
+<div class="form-group"><label>Jumlah</label><input type="number" id="jumlah" placeholder="0" min="1"></div>
+<div class="form-group"><label>Keterangan</label><input type="text" id="keterangan" placeholder="Contoh: Iuran warga"></div>
 </div>
-
-
-<div class="form-group">
-
-<label>Jumlah</label>
-
-<input
-type="number"
-id="jumlah"
-placeholder="0"
-min="1">
-
-</div>
-
-
-<div class="form-group">
-
-<label>Keterangan</label>
-
-<input
-type="text"
-id="keterangan"
-placeholder="Contoh: Iuran warga">
-
-</div>
-
-</div>
-
 <div style="margin-top:12px">
-
-<button
-class="btn btn-primary"
-onclick="simpanTransaksi()">
-💾 SIMPAN
-</button>
-
-<button
-class="btn btn-reset"
-onclick="resetForm()">
-🔄 Reset
-</button>
-
+<button class="btn btn-primary" onclick="simpanTransaksi()">💾 SIMPAN</button>
+<button class="btn btn-reset" onclick="resetForm()">🔄 Reset</button>
 </div>
-
 </div>
-
 
 <div class="card">
-
 <h3>📊 Daftar Transaksi</h3>
-
-<div class="search-box">
-
-<input
-type="search"
-id="pencarian"
-placeholder="🔎 Cari keterangan transaksi..."
-oninput="tampilkanTabel()">
-
-</div>
-
-<div id="tabelKosong" class="loading">
-⏳ Memuat data...
-</div>
-
+<div class="search-box"><input type="search" id="pencarian" placeholder="🔎 Cari keterangan transaksi..." oninput="tampilkanTabel()"></div>
+<div id="tabelKosong" class="loading">⏳ Memuat data...</div>
 <div class="table-wrapper">
-
 <table id="tabelTransaksi" style="display:none">
-
-<thead>
-
-<tr>
-
-<th>No</th>
-<th>Tanggal</th>
-<th>Jenis</th>
-<th>Keterangan</th>
-<th class="text-right">Jumlah</th>
-<th id="kolomAksi" class="text-right">Aksi</th>
-
-</tr>
-
-</thead>
-
+<thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th class="text-right">Jumlah</th><th id="kolomAksi" class="text-right">Aksi</th></tr></thead>
 <tbody id="isiTabel"></tbody>
-
 </table>
-
 </div>
-
 </div>
-
 
 <div class="admin-section">
-
-<button
-class="admin-toggle"
-id="adminToggle"
-onclick="toggleAdminLogin()">
-
-⚙️ Login Admin — Klik untuk mengisi data
-
-</button>
-
-
-<div
-class="admin-login-box"
-id="adminLoginBox">
-
+<button class="admin-toggle" id="adminToggle" onclick="toggleAdminLogin()">🔐 Login Admin — Klik untuk mengisi data</button>
+<div class="admin-login-box" id="adminLoginBox">
 <h3>🔐 Login Admin</h3>
-
-<input
-type="text"
-id="adminUser"
-placeholder="Username"
-autocomplete="username">
-
-<input
-type="password"
-id="adminPass"
-placeholder="Password"
-autocomplete="current-password"
-onkeydown="if(event.key==='Enter') loginAdmin()">
-
-<button
-class="btn btn-primary"
-onclick="loginAdmin()">
-🔑 Login
-</button>
-
+<input type="email" id="adminEmail" placeholder="Email Admin" autocomplete="email">
+<input type="password" id="adminPass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter') loginAdmin()">
+<button class="btn btn-primary" onclick="loginAdmin()">🔑 Login dengan Firebase</button>
 </div>
-
 </div>
-
 </section>
 
-
-<!-- ================= LAPORAN ================= -->
-
+<!-- LAPORAN -->
 <section id="laporan">
-
-<div class="print-only">
-
-<h1>📒 LAPORAN KEUANGAN RT 003 KGA</h1>
-
-<p>
-RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang
-</p>
-
-</div>
-
+<div class="print-only"><h1>📒 LAPORAN KEUANGAN RT 003 KGA</h1><p>RW 005 — Kramatwatu Griya Asri, Desa Lebakwana, Serang</p></div>
 <h2>📊 Laporan Bulanan</h2>
-
-<p style="margin-bottom:15px;color:#555">
-
-Saldo awal otomatis mengambil saldo akhir periode sebelumnya.
-
-</p>
-
-
+<p style="margin-bottom:15px;color:#555">Saldo awal otomatis mengambil saldo akhir periode sebelumnya.</p>
 <div class="filter-bar">
-
 <label>📅 Bulan:</label>
-
-<select
-id="lapBulan"
-onchange="tampilkanLaporan()">
-
-<option value="01">Januari</option>
-<option value="02">Februari</option>
-<option value="03">Maret</option>
-<option value="04">April</option>
-<option value="05">Mei</option>
-<option value="06">Juni</option>
-<option value="07">Juli</option>
-<option value="08">Agustus</option>
-<option value="09">September</option>
-<option value="10">Oktober</option>
-<option value="11">November</option>
-<option value="12">Desember</option>
-
+<select id="lapBulan" onchange="tampilkanLaporan()">
+<option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+<option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+<option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+<option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
 </select>
-
 <label>Tahun:</label>
-
-<input
-type="number"
-id="lapTahun"
-value="2026"
-min="2025"
-max="2035"
-onchange="tampilkanLaporan()">
-
+<input type="number" id="lapTahun" value="2026" min="2025" max="2035" onchange="tampilkanLaporan()">
 </div>
-
-
 <div class="ringkasan">
-
-<div class="kartu saldoawal">
-
-<h3>Saldo Awal</h3>
-
-<div class="angka" id="lapSaldoAwal">
-Rp 0
+<div class="kartu saldoawal"><h3>Saldo Awal</h3><div class="angka" id="lapSaldoAwal">Rp 0</div></div>
+<div class="kartu pemasukan"><h3>Pemasukan Bulan Ini</h3><div class="angka" id="lapMasuk">Rp 0</div></div>
+<div class="kartu pengeluaran"><h3>Pengeluaran Bulan Ini</h3><div class="angka" id="lapKeluar">Rp 0</div></div>
+<div class="kartu saldo"><h3>Saldo Akhir</h3><div class="angka" id="lapSaldo">Rp 0</div></div>
 </div>
-
-</div>
-
-
-<div class="kartu pemasukan">
-
-<h3>Pemasukan Bulan Ini</h3>
-
-<div class="angka" id="lapMasuk">
-Rp 0
-</div>
-
-</div>
-
-
-<div class="kartu pengeluaran">
-
-<h3>Pengeluaran Bulan Ini</h3>
-
-<div class="angka" id="lapKeluar">
-Rp 0
-</div>
-
-</div>
-
-
-<div class="kartu saldo">
-
-<h3>Saldo Akhir</h3>
-
-<div class="angka" id="lapSaldo">
-Rp 0
-</div>
-
-</div>
-
-</div>
-
-
 <div class="card">
-
 <h3>📋 Detail Transaksi Bulan Ini</h3>
-
-<div id="lapKosong" class="loading">
-Belum ada transaksi.
-</div>
-
+<div id="lapKosong" class="loading">Belum ada transaksi.</div>
 <div class="table-wrapper">
-
 <table id="tabelLaporan" style="display:none">
-
-<thead>
-
-<tr>
-
-<th>No</th>
-<th>Tanggal</th>
-<th>Jenis</th>
-<th>Keterangan</th>
-<th class="text-right">Jumlah</th>
-
-</tr>
-
-</thead>
-
+<thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th class="text-right">Jumlah</th></tr></thead>
 <tbody id="isiLaporan"></tbody>
-
 </table>
-
 </div>
-
 </div>
-
-
 <div class="card">
-
 <h3>📱 Bagikan Laporan</h3>
-
-<p style="margin-bottom:12px;color:#555">
-
-Kirim laporan bulan ini melalui WhatsApp.
-Anda bebas memilih kontak atau grup WhatsApp tujuan.
-
-</p>
-
-<button
-class="btn btn-wa"
-onclick="kirimWhatsApp()">
-
-📱 BAGIKAN LAPORAN VIA WHATSAPP
-
-</button>
-
-<button
-class="btn btn-secondary"
-style="width:100%;margin-top:8px"
-onclick="cetakLaporan()">
-
-🖨️ CETAK LAPORAN
-
-</button>
-
+<p style="margin-bottom:12px;color:#555">Kirim laporan bulan ini melalui WhatsApp.</p>
+<button class="btn btn-wa" onclick="kirimWhatsApp()">📱 BAGIKAN LAPORAN VIA WHATSAPP</button>
+<button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="cetakLaporan()">🖨️ CETAK LAPORAN</button>
 </div>
-
 </section>
-
 </div>
-
 
 <footer>
-
-<p>
-🏠 Buku Kas RT 003 KGA — RW 005,
-Kramatwatu Griya Asri, Desa Lebakwana
-</p>
-
-<p>
-© 2026 — Transparansi Keuangan Warga
-</p>
-
+<p>🏠 Buku Kas RT 003 KGA — RW 005, Kramatwatu Griya Asri, Desa Lebakwana</p>
+<p>© 2026 — Transparansi Keuangan Warga | Data aman di Firebase</p>
 </footer>
 
-
-<!-- ================= MODAL EDIT ================= -->
-
+<!-- MODAL EDIT -->
 <div class="modal" id="modalEdit">
-
 <div class="modal-box">
-
 <h3>✏️ Edit Transaksi</h3>
-
 <input type="hidden" id="editId">
-
-<label>Tanggal</label>
-
-<input type="date" id="editTanggal">
-
+<label>Tanggal</label><input type="date" id="editTanggal">
 <label>Jenis</label>
-
-<select id="editJenis">
-
-<option value="masuk">💰 Pemasukan</option>
-
-<option value="keluar">📤 Pengeluaran</option>
-
-</select>
-
-<label>Jumlah</label>
-
-<input
-type="number"
-id="editJumlah"
-min="1">
-
-<label>Keterangan</label>
-
-<input
-type="text"
-id="editKeterangan">
-
+<select id="editJenis"><option value="masuk">💰 Pemasukan</option><option value="keluar">📤 Pengeluaran</option></select>
+<label>Jumlah</label><input type="number" id="editJumlah" min="1">
+<label>Keterangan</label><input type="text" id="editKeterangan">
 <div class="modal-actions">
-
-<button
-class="btn btn-secondary"
-onclick="tutupModal()">
-Batal
-</button>
-
-<button
-class="btn btn-primary"
-onclick="updateTransaksi()">
-💾 Simpan Perubahan
-</button>
-
+<button class="btn btn-secondary" onclick="tutupModal()">Batal</button>
+<button class="btn btn-primary" onclick="updateTransaksi()">💾 Simpan Perubahan</button>
 </div>
-
 </div>
-
 </div>
-
 
 <script>
+let isAdmin = false;
+let daftarTransaksi = [];
 
-/* ==================================================
-   FIREBASE
-================================================== */
-
-const firebaseConfig = {
-
-apiKey:"AIzaSyB4EIc6DpAwST9uw30rI7Ee5ld61NaRv4",
-
-authDomain:"webrt03.firebaseapp.com",
-
-databaseURL:
-"https://webrt03-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-projectId:"webrt03",
-
-storageBucket:"webrt03.firebasestorage.app",
-
-messagingSenderId:"1023106112112",
-
-appId:"1:1023106112112:web:a1b5d1ef65f19f970bf2b5",
-
-measurementId:"G-N9GE516TC2"
-
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db=firebase.database();
-
-const refTransaksi=db.ref("transaksi_rt03");
-
-
-/* ==================================================
-   ADMIN
-================================================== */
-
-const ADMIN_USER="bendahara";
-
-const ADMIN_PASS="rt003kga";
-
-let isAdmin=false;
-
-let daftarTransaksi=[];
-
-
-/* ==================================================
-   FIREBASE REALTIME
-================================================== */
-
-refTransaksi.on("value",(snapshot)=>{
-
-const data=snapshot.val();
-
-daftarTransaksi=[];
-
-if(data){
-
-Object.entries(data).forEach(([id,trx])=>{
-
-daftarTransaksi.push({
-
-id,
-...trx
-
+// ==============================================
+// CEK STATUS LOGIN OTOMATIS
+// ==============================================
+auth.onAuthStateChanged(user => {
+  if (user && user.email === "admin@rt03kga.com") {
+    isAdmin = true;
+    tampilkanModeAdmin();
+  } else {
+    isAdmin = false;
+    tampilkanModeWarga();
+  }
+  muatDataTransaksi();
 });
 
+// ==============================================
+// MODE ADMIN & WARGA
+// ==============================================
+function tampilkanModeAdmin() {
+  document.getElementById("statusKeuangan").textContent = "🔧 Mode Admin — Bisa Input, Edit & Hapus";
+  document.getElementById("statusKeuangan").classList.remove("mode-warga");
+  document.getElementById("statusKeuangan").classList.add("mode-admin");
+  document.getElementById("formTransaksi").classList.remove("hidden");
+  document.getElementById("btnLogoutKeuangan").classList.remove("hidden");
+  document.getElementById("adminToggle").classList.add("hidden");
+  document.getElementById("adminLoginBox").classList.remove("show");
+  tampilkanTabel();
+}
+
+function tampilkanModeWarga() {
+  document.getElementById("statusKeuangan").textContent = "👤 Mode Warga — Hanya Melihat";
+  document.getElementById("statusKeuangan").classList.remove("mode-admin");
+  document.getElementById("statusKeuangan").classList.add("mode-warga");
+  document.getElementById("formTransaksi").classList.add("hidden");
+  document.getElementById("btnLogoutKeuangan").classList.add("hidden");
+  document.getElementById("adminToggle").classList.remove("hidden");
+  document.getElementById("adminEmail").value = "";
+  document.getElementById("adminPass").value = "";
+  tampilkanTabel();
+}
+
+// ==============================================
+// LOGIN — FIREBASE AUTHENTICATION 🔐
+// ==============================================
+function toggleAdminLogin() {
+  document.getElementById("adminLoginBox").classList.toggle("show");
+}
+
+async function loginAdmin() {
+  const email = document.getElementById("adminEmail").value.trim();
+  const pass = document.getElementById("adminPass").value.trim();
+  
+  if (!email || !pass) {
+    alert("⚠️ Email dan password harus diisi!");
+    return;
+  }
+
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    alert("✅ Login berhasil! Selamat datang, Admin.");
+  } catch (error) {
+    console.error(error);
+    alert("❌ Gagal login: " + error.message);
+  }
+}
+
+// ==============================================
+// LOGOUT
+// ==============================================
+async function logout() {
+  await auth.signOut();
+  alert("✅ Berhasil keluar!");
+}
+
+// ==============================================
+// MUAT DATA DARI FIRESTORE
+// ==============================================
+function muatDataTransaksi() {
+  db.collection(COLLECTION).orderBy("tanggal", "desc").onSnapshot(snapshot => {
+    daftarTransaksi = [];
+    snapshot.forEach(doc => {
+      daftarTransaksi.push({ id: doc.id, ...doc.data() });
+    });
+    tampilkanKeuangan();
+    tampilkanLaporan();
+  });
+}
+
+// ==============================================
+// MENU & NAVIGASI
+// ==============================================
+function toggleMenu() {
+  document.getElementById("menuNav").classList.toggle("show");
+}
+
+function bukaHalaman(id, element) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll("nav a").forEach(a => a.classList.remove("active"));
+  element.classList.add("active");
+  document.getElementById("menuNav").classList.remove("show");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (id === "keuangan") tampilkanKeuangan();
+  if (id === "laporan") tampilkanLaporan();
+}
+
+// ==============================================
+// FILTER & PENCARIAN
+// ==============================================
+function dapatkanDataTerfilter() {
+  const bulan = document.getElementById("filterBulan").value;
+  const tahun = document.getElementById("filterTahun").value;
+  if (bulan === "semua") return daftarTransaksi;
+  return daftarTransaksi.filter(t => {
+    if (!t.tanggal) return false;
+    const tanggal = t.tanggal.split("-");
+    return tanggal[0] === tahun && tanggal[1] === bulan;
+  });
+}
+
+function dataDenganPencarian(data) {
+  const input = document.getElementById("pencarian");
+  if (!input) return data;
+  const keyword = input.value.trim().toLowerCase();
+  if (!keyword) return data;
+  return data.filter(t => String(t.keterangan || "").toLowerCase().includes(keyword));
+}
+
+// ==============================================
+// KEUANGAN — RINGKASAN
+// ==============================================
+function tampilkanKeuangan() {
+  let data = dapatkanDataTerfilter();
+  let masuk = 0, keluar = 0;
+  data.forEach(t => {
+    if (t.jenis === "masuk") masuk += Number(t.jumlah) || 0;
+    else keluar += Number(t.jumlah) || 0;
+  });
+
+  let saldo;
+  const bulan = document.getElementById("filterBulan").value;
+  const tahun = document.getElementById("filterTahun").value;
+  
+  if (bulan === "semua") {
+    saldo = masuk - keluar;
+  } else {
+    const saldoAwal = hitungSaldoSebelumBulan(bulan, tahun);
+    saldo = saldoAwal + masuk - keluar;
+  }
+
+  document.getElementById("totalMasuk").textContent = formatRupiah(masuk);
+  document.getElementById("totalKeluar").textContent = formatRupiah(keluar);
+  document.getElementById("saldoAkhir").textContent = formatRupiah(saldo);
+  
+  tampilkanTabel();
+}
+
+// ==============================================
+// TABEL TRANSAKSI
+// ==============================================
+function tampilkanTabel() {
+  let data = dapatkanDataTerfilter();
+  data = dataDenganPencarian(data);
+  
+  const tabel = document.getElementById("tabelTransaksi");
+  const kosong = document.getElementById("tabelKosong");
+  const isi = document.getElementById("isiTabel");
+  const kolom = document.getElementById("kolomAksi");
+
+  if (data.length === 0) {
+    tabel.style.display = "none";
+    kosong.style.display = "block";
+    kosong.textContent = "Belum ada transaksi.";
+    return;
+  }
+
+  tabel.style.display = "table";
+  kosong.style.display = "none";
+  kolom.style.display = isAdmin ? "table-cell" : "none";
+  isi.innerHTML = "";
+
+  data.forEach((t, i) => {
+    const tr = document.createElement("tr");
+    const aksi = isAdmin ? `
+      <button class="btn btn-edit" style="padding:6px 9px" onclick="bukaEdit('${t.id}')">✏️</button>
+      <button class="btn btn-danger" style="padding:6px 9px" onclick="hapusTransaksi('${t.id}')">🗑️</button>
+    ` : "";
+
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${escapeHTML(t.tanggal)}</td>
+      <td>${t.jenis === "masuk" ? "💰 Masuk" : "📤 Keluar"}</td>
+      <td>${escapeHTML(t.keterangan)}</td>
+      <td class="text-right">${formatRupiah(Number(t.jumlah) || 0)}</td>
+      <td class="text-right" style="display:${isAdmin ? "table-cell" : "none"}">${aksi}</td>
+    `;
+    isi.appendChild(tr);
+  });
+}
+
+// ==============================================
+// SIMPAN TRANSAKSI
+// ==============================================
+async function simpanTransaksi() {
+  if (!isAdmin) { alert("❌ Hanya Admin!"); return; }
+
+  const tanggal = document.getElementById("tanggal").value;
+  const jenis = document.getElementById("jenis").value;
+  const jumlah = parseInt(document.getElementById("jumlah").value, 10);
+  const keterangan = document.getElementById("keterangan").value.trim();
+
+  if (!tanggal) { alert("⚠️ Tanggal harus diisi!"); return; }
+  if (!jumlah || jumlah <= 0) { alert("⚠️ Jumlah harus lebih dari 0!"); return; }
+  if (!keterangan) { alert("⚠️ Keterangan harus diisi!"); return; }
+
+  try {
+    await db.collection(COLLECTION).add({
+      tanggal, jenis, jumlah, keterangan,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("✅ Transaksi berhasil disimpan!");
+    resetForm();
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+}
+
+// ==============================================
+// EDIT & UPDATE
+// ==============================================
+function bukaEdit(id) {
+  if (!isAdmin) return;
+  const trx = daftarTransaksi.find(t => t.id === id);
+  if (!trx) { alert("❌ Transaksi tidak ditemukan."); return; }
+  
+  document.getElementById("editId").value = trx.id;
+  document.getElementById("editTanggal").value = trx.tanggal;
+  document.getElementById("editJenis").value = trx.jenis;
+  document.getElementById("editJumlah").value = trx.jumlah;
+  document.getElementById("editKeterangan").value = trx.keterangan;
+  document.getElementById("modalEdit").classList.add("show");
+}
+
+function tutupModal() {
+  document.getElementById("modalEdit").classList.remove("show");
+}
+
+async function updateTransaksi() {
+  if (!isAdmin) { alert("❌ Hanya Admin!"); return; }
+
+  const id = document.getElementById("editId").value;
+  const tanggal = document.getElementById("editTanggal").value;
+  const jenis = document.getElementById("editJenis").value;
+  const jumlah = parseInt(document.getElementById("editJumlah").value, 10);
+  const keterangan = document.getElementById("editKeterangan").value.trim();
+
+  if (!tanggal || !jumlah || jumlah <= 0 || !keterangan) {
+    alert("⚠️ Lengkapi semua data!");
+    return;
+  }
+
+  try {
+    await db.collection(COLLECTION).doc(id).update({
+      tanggal, jenis, jumlah, keterangan,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert("✅ Transaksi berhasil diperbarui!");
+    tutupModal();
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+}
+
+// ==============================================
+// HAPUS
+// ==============================================
+async function hapusTransaksi(id) {
+  if (!isAdmin) return;
+  const trx = daftarTransaksi.find(t => t.id === id);
+  if (!trx) return;
+
+  const yakin = confirm(
+    "Yakin ingin menghapus transaksi berikut?\n\n" +
+    trx.tanggal + "\n" + trx.keterangan + "\n" + formatRupiah(Number(trx.jumlah))
+  );
+  if (!yakin) return;
+
+  try {
+    await db.collection(COLLECTION).doc(id).delete();
+    alert("✅ Transaksi dihapus!");
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+}
+
+// ==============================================
+// FUNGSI BANTUAN
+// ==============================================
+function resetForm() {
+  document.getElementById("tanggal").valueAsDate = new Date();
+  document.getElementById("jenis").value = "masuk";
+  document.getElementById("jumlah").value = "";
+  document.getElementById("keterangan").value = "";
+}
+
+function hitungSaldoSebelumBulan(bulan, tahun) {
+  const periodeSekarang = parseInt(tahun, 10) * 100 + parseInt(bulan, 10);
+  let saldo = 0;
+  daftarTransaksi.forEach(t => {
+    if (!t.tanggal) return;
+    const bagian = t.tanggal.split("-");
+    const periodeTransaksi = parseInt(bagian[0], 10) * 100 + parseInt(bagian[1], 10);
+    if (periodeTransaksi < periodeSekarang) {
+      saldo += t.jenis === "masuk" ? (Number(t.jumlah) || 0) : -(Number(t.jumlah) || 0);
+    }
+  });
+  return saldo;
+}
+
+function dapatkanDataBulan(bulan, tahun) {
+  return daftarTransaksi
+    .filter(t => {
+      if (!t.tanggal) return false;
+      const bagian = t.tanggal.split("-");
+      return bagian[0] === String(tahun) && bagian[1] === String(bulan);
+    })
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+}
+
+function tampilkanLaporan() {
+  const bulan = document.getElementById("lapBulan").value;
+  const tahun = document.getElementById("lapTahun").value;
+  const namaBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][parseInt(bulan,10)-1];
+  
+  const saldoAwal = hitungSaldoSebelumBulan(bulan, tahun);
+  const dataBulan = dapatkanDataBulan(bulan, tahun);
+  let masuk = 0, keluar = 0;
+  dataBulan.forEach(t => {
+    if (t.jenis === "masuk") masuk += Number(t.jumlah) || 0;
+    else keluar += Number(t.jumlah) || 0;
+  });
+  const saldoAkhir = saldoAwal + masuk - keluar;
+
+  document.getElementById("lapSaldoAwal").textContent = formatRupiah(saldoAwal);
+  document.getElementById("lapMasuk").textContent = formatRupiah(masuk);
+  document.getElementById("lapKeluar").textContent = formatRupiah(keluar);
+  document.getElementById("lapSaldo").textContent = formatRupiah(saldoAkhir);
+
+  const tabel = document.getElementById("tabelLaporan");
+  const kosong = document.getElementById("lapKosong");
+  const isi = document.getElementById("isiLaporan");
+
+  if (dataBulan.length === 0) {
+    tabel.style.display = "none";
+    kosong.style.display = "block";
+    kosong.textContent = "Belum ada transaksi di bulan " + namaBulan + " " + tahun + ".";
+    return;
+  }
+
+  tabel.style.display = "table";
+  kosong.style.display = "none";
+  isi.innerHTML = "";
+  dataBulan.forEach((t, i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${escapeHTML(t.tanggal)}</td>
+      <td>${t.jenis === "masuk" ? "💰 Pemasukan" : "📤 Pengeluaran"}</td>
+      <td>${escapeHTML(t.keterangan)}</td>
+      <td class="text-right">${formatRupiah(Number(t.jumlah) || 0)}</td>
+    `;
+    isi.appendChild(tr);
+  });
+}
+
+function kirimWhatsApp() {
+  const bulan = document.getElementById("lapBulan").value;
+  const tahun = document.getElementById("lapTahun").value;
+  const namaBulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"][parseInt(bulan,10)-1];
+  
+  const dataBulan = dapatkanDataBulan(bulan, tahun);
+  const saldoAwal = hitungSaldoSebelumBulan(bulan, tahun);
+  let masuk = 0, keluar = 0;
+  dataBulan.forEach(t => {
+    if (t.jenis === "masuk") masuk += Number(t.jumlah) || 0;
+    else keluar += Number(t.jumlah) || 0;
+  });
+  const saldoAkhir = saldoAwal + masuk - keluar;
+
+  let pesan = "🏠 *LAPORAN KEUANGAN RT 003 KGA*\n";
+  pesan += "RW 005 — Kramatwatu Griya Asri\nDesa Lebakwana, Serang\n\n";
+  pesan += "📅 *Periode: " + namaBulan + " " + tahun + "*\n\n";
+  pesan += "💰 *Saldo Awal:* " + formatRupiah(saldoAwal) + "\n";
+  pesan += "➕ *Pemasukan:* " + formatRupiah(masuk) + "\n";
+  pesan += "➖ *Pengeluaran:* " + formatRupiah(keluar) + "\n";
+  pesan += "💵 *Saldo Akhir:* " + formatRupiah(saldoAkhir) + "\n\n";
+  pesan += "📋 *Detail Transaksi:*\n";
+  
+  if (dataBulan.length === 0) pesan += "Tidak ada transaksi bulan ini.\n";
+  else dataBulan.forEach((t, i) => {
+    pesan += "\n" + (i + 1) + ". " + t.tanggal + " - " + (t.jenis === "masuk" ? "Pemasukan" : "Pengeluaran") + "\n";
+    pesan += t.keterangan + " : " + formatRupiah(Number(t.jumlah) || 0) + "\n";
+  });
+  pesan += "\n📌 Laporan ini dibuat secara otomatis oleh Buku Kas RT 003 KGA.";
+
+  window.open("https://wa.me/?text=" + encodeURIComponent(pesan), "_blank");
+}
+
+function cetakLaporan() { window.print(); }
+function formatRupiah(angka) { return "Rp " + Number(angka || 0).toLocaleString("id-ID"); }
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+// ==============================================
+// INISIALISASI
+// ==============================================
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("tanggal").valueAsDate = new Date();
+  const sekarang = new Date();
+  const bulan = String(sekarang.getMonth() + 1).padStart(2, "0");
+  const tahun = String(sekarang.getFullYear());
+  document.getElementById("lapBulan").value = bulan;
+  document.getElementById("lapTahun").value = tahun;
+  document.getElementById("filterTahun").value = tahun;
+  tampilkanLaporan();
 });
 
-}
-
-daftarTransaksi.sort((a,b)=>{
-
-return new Date(b.tanggal)-new Date(a.tanggal);
-
+// Tutup modal klik luar
+document.getElementById("modalEdit").addEventListener("click", e => {
+  if (e.target.id === "modalEdit") tutupModal();
 });
-
-tampilkanKeuangan();
-
-tampilkanLaporan();
-
-});
-
-
-/* ==================================================
-   MENU
-================================================== */
-
-function toggleMenu(){
-
-document
-.getElementById("menuNav")
-.classList.toggle("show");
-
-}
-
-
-function bukaHalaman(id,element){
-
-document
-.querySelectorAll("section")
-.forEach(s=>s.classList.remove("active"));
-
-document
-.getElementById(id)
-.classList.add("active");
-
-document
-.querySelectorAll("nav a")
-.forEach(a=>a.classList.remove("active"));
-
-element.classList.add("active");
-
-document
-.getElementById("menuNav")
-.classList.remove("show");
-
-window.scrollTo({
-
-top:0,
-behavior:"smooth"
-
-});
-
-if(id==="keuangan"){
-
-tampilkanKeuangan();
-
-}
-
-if(id==="laporan"){
-
-tampilkanLaporan();
-
-}
-
-}
-
-
-/* ==================================================
-   LOGIN
-================================================== */
-
-function toggleAdminLogin(){
-
-document
-.getElementById("adminLoginBox")
-.classList.toggle("show");
-
-}
-
-
-function loginAdmin(){
-
-const user=document
-.getElementById("adminUser")
-.value
-.trim();
-
-const pass=document
-.getElementById("adminPass")
-.value
-.trim();
-
-if(user===ADMIN_USER && pass===ADMIN_PASS){
-
-isAdmin=true;
-
-document
-.getElementById("statusKeuangan")
-.textContent=
-"🔧 Mode Admin — Bisa Input, Edit & Hapus";
-
-document
-.getElementById("statusKeuangan")
-.classList.remove("mode-warga");
-
-document
-.getElementById("statusKeuangan")
-.classList.add("mode-admin");
-
-document
-.getElementById("formTransaksi")
-.classList.remove("hidden");
-
-document
-.getElementById("btnLogoutKeuangan")
-.classList.remove("hidden");
-
-document
-.getElementById("adminToggle")
-.classList.add("hidden");
-
-document
-.getElementById("adminLoginBox")
-.classList.remove("show");
-
-document
-.getElementById("adminUser")
-.value="";
-
-document
-.getElementById("adminPass")
-.value="";
-
-tampilkanTabel();
-
-alert("✅ Login berhasil!");
-
-}else{
-
-alert("❌ Username atau password salah!");
-
-}
-
-}
-
-
-/* ==================================================
-   LOGOUT
-================================================== */
-
-function logout(){
-
-isAdmin=false;
-
-document
-.getElementById("statusKeuangan")
-.textContent=
-"👤 Mode Warga — Hanya Melihat";
-
-document
-.getElementById("statusKeuangan")
-.classList.remove("mode-admin");
-
-document
-.getElementById("statusKeuangan")
-.classList.add("mode-warga");
-
-document
-.getElementById("formTransaksi")
-.classList.add("hidden");
-
-document
-.getElementById("btnLogoutKeuangan")
-.classList.add("hidden");
-
-document
-.getElementById("adminToggle")
-.classList.remove("hidden");
-
-tutupModal();
-
-tampilkanTabel();
-
-}
-
-
-/* ==================================================
-   FILTER
-================================================== */
-
-function dapatkanDataTerfilter(){
-
-const bulan=document
-.getElementById("filterBulan")
-.value;
-
-const tahun=document
-.getElementById("filterTahun")
-.value;
-
-if(bulan==="semua"){
-
-return daftarTransaksi;
-
-}
-
-return daftarTransaksi.filter(t=>{
-
-if(!t.tanggal) return false;
-
-const tanggal=t.tanggal.split("-");
-
-return tanggal[0]===tahun &&
-tanggal[1]===bulan;
-
-});
-
-}
-
-
-/* ==================================================
-   PENCARIAN
-================================================== */
-
-function dataDenganPencarian(data){
-
-const input=document
-.getElementById("pencarian");
-
-if(!input) return data;
-
-const keyword=input.value
-.trim()
-.toLowerCase();
-
-if(!keyword) return data;
-
-return data.filter(t=>{
-
-return String(t.keterangan || "")
-.toLowerCase()
-.includes(keyword);
-
-});
-
-}
-
-
-/* ==================================================
-   KEUANGAN
-================================================== */
-
-function tampilkanKeuangan(){
-
-let data=dapatkanDataTerfilter();
-
-let masuk=0;
-
-let keluar=0;
-
-data.forEach(t=>{
-
-if(t.jenis==="masuk"){
-
-masuk+=Number(t.jumlah)||0;
-
-}else{
-
-keluar+=Number(t.jumlah)||0;
-
-}
-
-});
-
-let saldo;
-
-const bulan=document
-.getElementById("filterBulan")
-.value;
-
-const tahun=document
-.getElementById("filterTahun")
-.value;
-
-if(bulan==="semua"){
-
-saldo=masuk-keluar;
-
-}else{
-
-const saldoAwal=
-hitungSaldoSebelumBulan(bulan,tahun);
-
-saldo=saldoAwal+masuk-keluar;
-
-}
-
-document
-.getElementById("totalMasuk")
-.textContent=formatRupiah(masuk);
-
-document
-.getElementById("totalKeluar")
-.textContent=formatRupiah(keluar);
-
-document
-.getElementById("saldoAkhir")
-.textContent=formatRupiah(saldo);
-
-tampilkanTabel();
-
-}
-
-
-/* ==================================================
-   TABEL KEUANGAN
-================================================== */
-
-function tampilkanTabel(){
-
-let data=dapatkanDataTerfilter();
-
-data=dataDenganPencarian(data);
-
-const tabel=document
-.getElementById("tabelTransaksi");
-
-const kosong=document
-.getElementById("tabelKosong");
-
-const isi=document
-.getElementById("isiTabel");
-
-const kolom=document
-.getElementById("kolomAksi");
-
-
-if(data.length===0){
-
-tabel.style.display="none";
-
-kosong.style.display="block";
-
-kosong.textContent=
-"Belum ada transaksi.";
-
-return;
-
-}
-
-
-tabel.style.display="table";
-
-kosong.style.display="none";
-
-kolom.style.display=
-isAdmin ? "table-cell":"none";
-
-isi.innerHTML="";
-
-
-data.forEach((t,i)=>{
-
-const tr=document.createElement("tr");
-
-const aksi=isAdmin
-?`
-
-<button
-class="btn btn-edit"
-style="padding:6px 9px"
-onclick="bukaEdit('${t.id}')">
-✏️
-</button>
-
-<button
-class="btn btn-danger"
-style="padding:6px 9px"
-onclick="hapusTransaksi('${t.id}')">
-🗑️
-</button>
-
-`
-:"";
-
-
-tr.innerHTML=`
-
-<td>${i+1}</td>
-
-<td>${escapeHTML(t.tanggal)}</td>
-
-<td>
-${t.jenis==="masuk"
-?"💰 Masuk"
-:"📤 Keluar"}
-</td>
-
-<td>${escapeHTML(t.keterangan)}</td>
-
-<td class="text-right">
-${formatRupiah(Number(t.jumlah)||0)}
-</td>
-
-<td
-class="text-right"
-style="display:${isAdmin?"table-cell":"none"}">
-
-${aksi}
-
-</td>
-
-`;
-
-isi.appendChild(tr);
-
-});
-
-}
-
-
-/* ==================================================
-   SIMPAN TRANSAKSI
-================================================== */
-
-function simpanTransaksi(){
-
-if(!isAdmin){
-
-alert("❌ Hanya Admin!");
-
-return;
-
-}
-
-const tanggal=document
-.getElementById("tanggal")
-.value;
-
-const jenis=document
-.getElementById("jenis")
-.value;
-
-const jumlah=parseInt(
-document.getElementById("jumlah").value,
-10
-);
-
-const keterangan=document
-.getElementById("keterangan")
-.value
-.trim();
-
-
-if(!tanggal){
-
-alert("⚠️ Tanggal harus diisi!");
-
-return;
-
-}
-
-if(!jumlah || jumlah<=0){
-
-alert("⚠️ Jumlah harus lebih dari 0!");
-
-return;
-
-}
-
-if(!keterangan){
-
-alert("⚠️ Keterangan harus diisi!");
-
-return;
-
-}
-
-
-refTransaksi.push({
-
-tanggal,
-jenis,
-jumlah,
-keterangan,
-waktu:new Date().toISOString()
-
-})
-.then(()=>{
-
-alert("✅ Transaksi berhasil disimpan!");
-
-resetForm();
-
-})
-.catch(err=>{
-
-alert("❌ "+err.message);
-
-});
-
-}
-
-
-/* ==================================================
-   EDIT
-================================================== */
-
-function bukaEdit(id){
-
-if(!isAdmin) return;
-
-const trx=daftarTransaksi.find(t=>t.id===id);
-
-if(!trx){
-
-alert("❌ Transaksi tidak ditemukan.");
-
-return;
-
-}
-
-document
-.getElementById("editId")
-.value=trx.id;
-
-document
-.getElementById("editTanggal")
-.value=trx.tanggal;
-
-document
-.getElementById("editJenis")
-.value=trx.jenis;
-
-document
-.getElementById("editJumlah")
-.value=trx.jumlah;
-
-document
-.getElementById("editKeterangan")
-.value=trx.keterangan;
-
-document
-.getElementById("modalEdit")
-.classList.add("show");
-
-}
-
-
-function tutupModal(){
-
-document
-.getElementById("modalEdit")
-.classList.remove("show");
-
-}
-
-
-function updateTransaksi(){
-
-if(!isAdmin){
-
-alert("❌ Hanya Admin!");
-
-return;
-
-}
-
-const id=document
-.getElementById("editId")
-.value;
-
-const tanggal=document
-.getElementById("editTanggal")
-.value;
-
-const jenis=document
-.getElementById("editJenis")
-.value;
-
-const jumlah=parseInt(
-document.getElementById("editJumlah").value,
-10
-);
-
-const keterangan=document
-.getElementById("editKeterangan")
-.value
-.trim();
-
-
-if(!tanggal || !jumlah || jumlah<=0 || !keterangan){
-
-alert("⚠️ Lengkapi semua data!");
-
-return;
-
-}
-
-
-refTransaksi
-.child(id)
-.update({
-
-tanggal,
-jenis,
-jumlah,
-keterangan,
-diubah:new Date().toISOString()
-
-})
-.then(()=>{
-
-alert("✅ Transaksi berhasil diperbarui!");
-
-tutupModal();
-
-})
-.catch(err=>{
-
-alert("❌ "+err.message);
-
-});
-
-}
-
-
-/* ==================================================
-   HAPUS
-================================================== */
-
-function hapusTransaksi(id){
-
-if(!isAdmin) return;
-
-const trx=daftarTransaksi.find(t=>t.id===id);
-
-if(!trx) return;
-
-const yakin=confirm(
-
-"Yakin ingin menghapus transaksi berikut?\n\n"+
-trx.tanggal+
-"\n"+
-trx.keterangan+
-"\n"+
-formatRupiah(Number(trx.jumlah))
-
-);
-
-if(!yakin) return;
-
-
-refTransaksi
-.child(id)
-.remove()
-
-.then(()=>{
-
-alert("✅ Transaksi dihapus!");
-
-})
-
-.catch(err=>{
-
-alert("❌ "+err.message);
-
-});
-
-}
-
-
-/* ==================================================
-   RESET FORM
-================================================== */
-
-function resetForm(){
-
-document
-.getElementById("tanggal")
-.valueAsDate=new Date();
-
-document
-.getElementById("jenis")
-.value="masuk";
-
-document
-.getElementById("jumlah")
-.value="";
-
-document
-.getElementById("keterangan")
-.value="";
-
-}
-
-
-/* ==================================================
-   SALDO SEBELUM BULAN
-================================================== */
-
-function hitungSaldoSebelumBulan(bulan,tahun){
-
-const periodeSekarang=
-parseInt(tahun,10)*100+
-parseInt(bulan,10);
-
-let saldo=0;
-
-daftarTransaksi.forEach(t=>{
-
-if(!t.tanggal) return;
-
-const bagian=t.tanggal.split("-");
-
-const tahunTransaksi=
-parseInt(bagian[0],10);
-
-const bulanTransaksi=
-parseInt(bagian[1],10);
-
-const periodeTransaksi=
-tahunTransaksi*100+
-bulanTransaksi;
-
-if(periodeTransaksi<periodeSekarang){
-
-if(t.jenis==="masuk"){
-
-saldo+=Number(t.jumlah)||0;
-
-}else{
-
-saldo-=Number(t.jumlah)||0;
-
-}
-
-}
-
-});
-
-return saldo;
-
-}
-
-
-/* ==================================================
-   LAPORAN
-================================================== */
-
-function dapatkanDataBulan(bulan,tahun){
-
-return daftarTransaksi
-
-.filter(t=>{
-
-if(!t.tanggal) return false;
-
-const bagian=t.tanggal.split("-");
-
-return bagian[0]===String(tahun) &&
-bagian[1]===String(bulan);
-
-})
-
-.sort((a,b)=>
-a.tanggal.localeCompare(b.tanggal)
-);
-
-}
-
-
-function tampilkanLaporan(){
-
-const bulan=document
-.getElementById("lapBulan")
-.value;
-
-const tahun=document
-.getElementById("lapTahun")
-.value;
-
-const dataBulan=
-dapatkanDataBulan(bulan,tahun);
-
-const namaBulan=[
-"Januari",
-"Februari",
-"Maret",
-"April",
-"Mei",
-"Juni",
-"Juli",
-"Agustus",
-"September",
-"Oktober",
-"November",
-"Desember"
-][parseInt(bulan,10)-1];
-
-
-const saldoAwal=
-hitungSaldoSebelumBulan(bulan,tahun);
-
-let masuk=0;
-
-let keluar=0;
-
-
-dataBulan.forEach(t=>{
-
-if(t.jenis==="masuk"){
-
-masuk+=Number(t.jumlah)||0;
-
-}else{
-
-keluar+=Number(t.jumlah)||0;
-
-}
-
-});
-
-
-const saldoAkhir=
-saldoAwal+
-masuk-
-keluar;
-
-
-document
-.getElementById("lapSaldoAwal")
-.textContent=
-formatRupiah(saldoAwal);
-
-document
-.getElementById("lapMasuk")
-.textContent=
-formatRupiah(masuk);
-
-document
-.getElementById("lapKeluar")
-.textContent=
-formatRupiah(keluar);
-
-document
-.getElementById("lapSaldo")
-.textContent=
-formatRupiah(saldoAkhir);
-
-
-const tabel=document
-.getElementById("tabelLaporan");
-
-const kosong=document
-.getElementById("lapKosong");
-
-const isi=document
-.getElementById("isiLaporan");
-
-
-if(dataBulan.length===0){
-
-tabel.style.display="none";
-
-kosong.style.display="block";
-
-kosong.textContent=
-"Belum ada transaksi di bulan "+
-namaBulan+
-" "+
-tahun+
-".";
-
-return;
-
-}
-
-
-tabel.style.display="table";
-
-kosong.style.display="none";
-
-isi.innerHTML="";
-
-
-dataBulan.forEach((t,i)=>{
-
-const tr=document.createElement("tr");
-
-tr.innerHTML=`
-
-<td>${i+1}</td>
-
-<td>${escapeHTML(t.tanggal)}</td>
-
-<td>
-${t.jenis==="masuk"
-?"💰 Pemasukan"
-:"📤 Pengeluaran"}
-</td>
-
-<td>${escapeHTML(t.keterangan)}</td>
-
-<td class="text-right">
-${formatRupiah(Number(t.jumlah)||0)}
-</td>
-
-`;
-
-isi.appendChild(tr);
-
-});
-
-}
-
-
-/* ==================================================
-   WHATSAPP
-================================================== */
-
-function kirimWhatsApp(){
-
-const bulan=document
-.getElementById("lapBulan")
-.value;
-
-const tahun=document
-.getElementById("lapTahun")
-.value;
-
-const namaBulan=[
-"Januari",
-"Februari",
-"Maret",
-"April",
-"Mei",
-"Juni",
-"Juli",
-"Agustus",
-"September",
-"Oktober",
-"November",
-"Desember"
-][parseInt(bulan,10)-1];
-
-
-const dataBulan=
-dapatkanDataBulan(bulan,tahun);
-
-const saldoAwal=
-hitungSaldoSebelumBulan(bulan,tahun);
-
-let masuk=0;
-
-let keluar=0;
-
-
-dataBulan.forEach(t=>{
-
-if(t.jenis==="masuk"){
-
-masuk+=Number(t.jumlah)||0;
-
-}else{
-
-keluar+=Number(t.jumlah)||0;
-
-}
-
-});
-
-
-const saldoAkhir=
-saldoAwal+
-masuk-
-keluar;
-
-
-let pesan="";
-
-pesan+=
-"🏠 *LAPORAN KEUANGAN RT 003 KGA*\n";
-
-pesan+=
-"RW 005 — Kramatwatu Griya Asri\n";
-
-pesan+=
-"Desa Lebakwana, Serang\n\n";
-
-pesan+=
-"📅 *Periode: "+
-namaBulan+
-" "+
-tahun+
-"*\n\n";
-
-pesan+=
-"💰 *Saldo Awal:* "+
-formatRupiah(saldoAwal)+
-"\n";
-
-pesan+=
-"➕ *Pemasukan:* "+
-formatRupiah(masuk)+
-"\n";
-
-pesan+=
-"➖ *Pengeluaran:* "+
-formatRupiah(keluar)+
-"\n";
-
-pesan+=
-"💵 *Saldo Akhir:* "+
-formatRupiah(saldoAkhir)+
-"\n\n";
-
-pesan+=
-"📋 *Detail Transaksi:*\n";
-
-
-if(dataBulan.length===0){
-
-pesan+=
-"Tidak ada transaksi bulan ini.\n";
-
-}else{
-
-dataBulan.forEach((t,i)=>{
-
-pesan+=
-"\n"+
-(i+1)+
-". "+
-t.tanggal+
-" - "+
-(t.jenis==="masuk"
-?"Pemasukan"
-:"Pengeluaran")+
-"\n";
-
-pesan+=
-t.keterangan+
-" : "+
-formatRupiah(Number(t.jumlah)||0)+
-"\n";
-
-});
-
-}
-
-
-pesan+=
-"\n📌 Laporan ini dibuat secara otomatis oleh Buku Kas RT 003 KGA.";
-
-
-/*
-   TIDAK ADA NOMOR TUJUAN.
-   WhatsApp akan membuka pemilihan kontak/grup.
-*/
-
-const url=
-"https://wa.me/?text="+
-encodeURIComponent(pesan);
-
-window.open(url,"_blank");
-
-}
-
-
-/* ==================================================
-   CETAK
-================================================== */
-
-function cetakLaporan(){
-
-window.print();
-
-}
-
-
-/* ==================================================
-   FORMAT RUPIAH
-================================================== */
-
-function formatRupiah(angka){
-
-return "Rp "+
-Number(angka||0)
-.toLocaleString("id-ID");
-
-}
-
-
-/* ==================================================
-   KEAMANAN TAMPILAN HTML
-================================================== */
-
-function escapeHTML(value){
-
-return String(value ?? "")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
-}
-
-
-/* ==================================================
-   INIT
-================================================== */
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-document
-.getElementById("tanggal")
-.valueAsDate=new Date();
-
-const sekarang=new Date();
-
-const bulan=
-String(sekarang.getMonth()+1)
-.padStart(2,"0");
-
-const tahun=
-String(sekarang.getFullYear());
-
-
-document
-.getElementById("lapBulan")
-.value=bulan;
-
-document
-.getElementById("lapTahun")
-.value=tahun;
-
-document
-.getElementById("filterTahun")
-.value=tahun;
-
-tampilkanLaporan();
-
-});
-
-
-/* ==================================================
-   TUTUP MODAL KLIK LUAR
-================================================== */
-
-document
-.getElementById("modalEdit")
-.addEventListener("click",(event)=>{
-
-if(event.target.id==="modalEdit"){
-
-tutupModal();
-
-}
-
-});
-
 </script>
 
 </body>
